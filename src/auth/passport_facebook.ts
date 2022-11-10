@@ -5,19 +5,21 @@ import passportFacebook from 'passport-facebook';
 const FacebookStrategy = passportFacebook.Strategy
 export default (passport:any)=>{
 passport.use(new FacebookStrategy({
-    clientID: "556582428228-h8937pu1e88balhnmn0rtotp7pdq8gtt.apps.googleusercontent.com",
-    clientSecret: "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",
-    callbackURL: "http://localhost:7000/auth/google/callback",
-    // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+    clientID:process.env.FB_CLIENT_ID!,
+    clientSecret: process.env.FB_CLIENT_SECRET!,
+    callbackURL: process.env.FB_CALLBACK_URL!,
+    profileFields: ['id', 'displayName' , 'picture.type(large)', 'name', 'emails']
   },
   async function(accessToken:any, refreshToken:any, profile:any, done:any) {
     try{
+        console.log(profile._json.picture)
       const userInfo=
-        {firstName:profile._json.given_name,
-        lastName:profile._json.family_name,
+        {
+        firstName:profile._json.first_name,
+        lastName:profile._json.last_name,
         email:profile._json.email,
-        googleId:profile._json.sub,
-        profileImg:profile._json.picture
+        facebookId:profile._json.id,
+        profileImg:profile._json.picture?.data?.url
         }
       const user=await findOneOrCreate(userInfo)
       done(null, user)
